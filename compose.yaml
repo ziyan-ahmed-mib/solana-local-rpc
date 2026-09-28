@@ -1,0 +1,42 @@
+name: solana-local-rpc
+
+services:
+  validator:
+    build:
+      context: .
+      args:
+        AGAVE_VERSION: ${AGAVE_VERSION:-v4.3.0}
+    platform: linux/amd64
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 60s
+    ports:
+      - "${RPC_BIND_ADDRESS:-127.0.0.1}:${RPC_PORT:-8899}:8899"
+      - "${RPC_BIND_ADDRESS:-127.0.0.1}:${WS_PORT:-8900}:8900"
+    volumes:
+      - ledger:/data/ledger
+    environment:
+      RUST_LOG: ${RUST_LOG:-warn}
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+    ulimits:
+      nofile:
+        soft: 1000000
+        hard: 1000000
+    security_opt:
+      - no-new-privileges:true
+      - seccomp=./docker/seccomp-agave.json
+    cap_drop:
+      - ALL
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  ledger:

@@ -1,0 +1,5 @@
+.env
+*.log
+test-ledger/
+backups/
+*-keypair.json
