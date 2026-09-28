@@ -1,0 +1,22 @@
+# Opt-in fresh ledger with Metaplex Core. The original ledger is retained.
+services:
+  validator:
+    command:
+      - --ledger
+      - /data/ledger
+      - --bind-address
+      - 127.0.0.1
+      - --rpc-port
+      - "8899"
+      - --limit-blockstore-size
+      - "100000"
+      - --log
+      - --bpf-program
+      - CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d
+      - /opt/programs/mpl-core.so
+    volumes:
+      - metaplex-ledger:/data/ledger
+      - ./programs:/opt/programs:ro
+
+volumes:
+  metaplex-ledger:

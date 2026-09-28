@@ -71,6 +71,38 @@ Then use the local endpoints on your development machine. Alternatively set `RPC
 
 ## Operations
 
+### Optional Metaplex Core
+
+The base validator does not include Metaplex Core. `compose.metaplex.yaml`
+loads the bundled Core program at its standard address using a separate
+`metaplex-ledger` volume. The first activation creates a different chain:
+the genesis hash changes and existing balances, assets, and programs are not
+carried over. The original `ledger` volume is preserved.
+
+After deciding to switch chains, run:
+
+```sh
+docker compose -f compose.yaml -f compose.metaplex.yaml up -d --wait --wait-timeout 180
+docker compose exec -T validator solana --url http://127.0.0.1:8899 account CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d
+```
+
+To keep Core enabled for plain `docker compose` commands, add these lines to
+`.env` (already enabled in this workspace):
+
+```dotenv
+COMPOSE_PATH_SEPARATOR=|
+COMPOSE_FILE=compose.yaml|compose.metaplex.yaml
+```
+
+Otherwise keep using both `-f` options for subsequent `up` operations on the Core chain.
+Run `docker compose -f compose.yaml up -d --wait` to return to the original
+chain, and remove those two `.env` entries to keep using it by default.
+Neither command deletes a ledger. RPC URLs stay the same. Fund the
+application wallets on the new chain and update any configured genesis check.
+Core itself does not provide a DAS indexing API.
+
+### Service management
+
 ```sh
 docker compose logs --tail=100 -f validator
 docker compose restart validator
